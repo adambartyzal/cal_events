@@ -1,33 +1,42 @@
 from calendar_service import calendarService
 from my_dicts import calendars,times
+import pprint as pretty
 
-def addEvent(calendarName,eventName,timeFrom,timeTo):
-  service = calendarService()
-  calendarId = calendars[calendarName]
+class Event:
 
-  event = {
-    'summary': eventName,
-    'start': {
-      'dateTime': times[timeFrom],
-    },
-    'end': {
-      'dateTime': times[timeTo],
-    },
-  }
+  def __init__(self):
+    self.service = calendarService()
+    self.event = {
+      'summary': 'default name',
+      'start': {
+        'dateTime': times['now'],
+      },
+      'end': {
+        'dateTime': times['hourLater'],
+      },
+    }
+    self.calendarId = calendars['personal']
+    self.eventId = 'not yet uploaded'
 
-  event = service.events().insert(calendarId=calendarId, body=event).execute()
-  eventId = event['id']
-  print (eventId)
-  return eventId
+  def calendar(self,calendarName):
+    self.calendarId = calendars[calendarName]
 
-def endEventAt(calendarName,eventId,time):
-  service = calendarService()
-  calendarId = calendars[calendarName]
+  def name(self,eventName):
+    self.event['summary'] = eventName
 
-  event = service.events().get(calendarId=calendarId,eventId=eventId).execute()
-  event['end']['dateTime'] = times[time]
-  event = service.events().update(calendarId=calendarId, eventId=eventId, body=event).execute()
+  def show(self):
+    print(f'Event with Google id: {self.eventId}')
+    pretty.pprint(self.event)
 
-#eventId = addEvent('personal','Test','now','hourLater')
+  def add(self):
+    event = self.service.events().insert(calendarId=self.calendarId, body=self.event).execute()
+    self.eventId = event['id']
 
-endEventAt('personal','m7ohrdgr5kkmfgtifok5bl9gdk','now')
+  def update(self):
+    self.service.events().update(calendarId=calendarId, eventId=eventId, body=event).execute()
+
+  def startAt(self,time):
+    self.event['start']['dateTime'] = times[time]
+
+  def endAt(self,time):
+    self.event['end']['dateTime'] = times[time]
